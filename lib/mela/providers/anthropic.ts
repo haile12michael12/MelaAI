@@ -1,0 +1,6 @@
+export class AnthropicProvider {
+  apiKey?: string;
+  constructor(apiKey?: string) {
+    this.apiKey = apiKey;
+  }
+}

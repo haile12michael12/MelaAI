@@ -56,7 +56,7 @@ export async function getCredentials(req?: NextRequest): Promise<Credentials> {
   } catch {
     // Fallback if headers context is unavailable (e.g. static rendering)
     return {
-      firebaseConfig: env.FIREBASE_CONFIG || null,
+      firebaseConfig: env.FIREBASE_CONFIG || publicFirebaseConfig() || null,
       traktClientId: process.env.TRAKT_CLIENT_ID || null,
       traktClientSecret: process.env.TRAKT_CLIENT_SECRET || null,
       traktRefreshToken: process.env.TRAKT_REFRESH_TOKEN || null,
@@ -68,11 +68,24 @@ export async function getCredentials(req?: NextRequest): Promise<Credentials> {
   const getHeader = (name: string) => reqHeaders.get(name) || null;
 
   return {
-    firebaseConfig: getHeader("x-firebase-config") || env.FIREBASE_CONFIG || null,
+    firebaseConfig: getHeader("x-firebase-config") || env.FIREBASE_CONFIG || publicFirebaseConfig() || null,
     traktClientId: getHeader("x-trakt-client-id") || process.env.TRAKT_CLIENT_ID || null,
     traktClientSecret: getHeader("x-trakt-client-secret") || process.env.TRAKT_CLIENT_SECRET || null,
     traktRefreshToken: getHeader("x-trakt-refresh-token") || process.env.TRAKT_REFRESH_TOKEN || null,
     traktAccessToken: getHeader("x-trakt-access-token") || null,
     redirectUri: getHeader("x-trakt-redirect-uri") || process.env.TRAKT_REDIRECT_URI || null,
   };
+}
+
+function publicFirebaseConfig(): string | null {
+  const config = {
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  };
+
+  return config.apiKey && config.projectId ? JSON.stringify(config) : null;
 }

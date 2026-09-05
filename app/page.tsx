@@ -959,14 +959,22 @@ export default function Dashboard() {
 
     // Init Firebase Auth
     let unsubscribe: (() => void) | undefined;
-    import("firebase/app").then(async ({ initializeApp, getApps }) => {
-      const res = await fetch("/api/auth/config");
-      const config = await res.json();
-      const app = getApps().length ? getApps()[0] : initializeApp(config);
+    let cancelled = false;
 
-      const { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut, getRedirectResult } = await import("firebase/auth");
-      const auth = getAuth(app);
-      setFirebaseAuth({ auth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut });
+    async function initFirebaseAuth() {
+      try {
+        const res = await fetch("/api/auth/config");
+        const config = await res.json();
+        if (!res.ok || typeof config?.apiKey !== "string" || !config.apiKey || typeof config?.projectId !== "string" || !config.projectId) {
+          throw new Error(config?.message || config?.error || "Firebase is not configured. Set FIREBASE_CONFIG or NEXT_PUBLIC_FIREBASE_* variables.");
+        }
+
+        const { initializeApp, getApps } = await import("firebase/app");
+        const app = getApps().length ? getApps()[0] : initializeApp(config);
+        const { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut, getRedirectResult } = await import("firebase/auth");
+        const auth = getAuth(app);
+        if (cancelled) return;
+        setFirebaseAuth({ auth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut });
 
       getRedirectResult(auth).then((result) => {
         if (result?.user) {
@@ -1001,9 +1009,16 @@ export default function Dashboard() {
         setAuthLoading(false);
       });
 
-    });
+      } catch (error) {
+        console.error("[Auth] Firebase initialization failed:", error);
+        if (!cancelled) setAuthLoading(false);
+      }
+    }
+
+    initFirebaseAuth();
 
     return () => {
+      cancelled = true;
       if (unsubscribe) unsubscribe();
     };
   }, []);

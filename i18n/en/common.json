@@ -1,0 +1,11 @@
+{
+  "app": {
+    "name": "MelaAI",
+    "welcome": "Welcome to MelaAI"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "search": "Search"
+  }
+}

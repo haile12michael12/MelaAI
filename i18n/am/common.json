@@ -1,0 +1,11 @@
+{
+  "app": {
+    "name": "ሜላ AI",
+    "welcome": "እንኳን ወደ ሜላ AI በደህና መጡ"
+  },
+  "common": {
+    "save": "አስቀምጥ",
+    "cancel": "ሰርዝ",
+    "search": "ፈልግ"
+  }
+}
