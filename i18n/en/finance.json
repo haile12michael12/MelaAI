@@ -1,0 +1,16 @@
+{
+  "title": "Finance",
+  "expenses": "Expenses",
+  "budgets": "Budgets",
+  "accounts": "Accounts",
+  "transactions": "Transactions",
+  "reports": "Reports",
+  "income": "Income",
+  "spending": "Spending",
+  "balance": "Balance",
+  "amount": "Amount",
+  "category": "Category",
+  "date": "Date",
+  "addExpense": "Add expense",
+  "totalSpent": "Total spent"
+}

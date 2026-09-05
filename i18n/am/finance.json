@@ -1,0 +1,16 @@
+{
+  "title": "ፋይናንስ",
+  "expenses": "ወጪዎች",
+  "budgets": "በጀቶች",
+  "accounts": "ሂሳቦች",
+  "transactions": "ግብይቶች",
+  "reports": "ሪፖርቶች",
+  "income": "ገቢ",
+  "spending": "ወጪ",
+  "balance": "ቀሪ ሂሳብ",
+  "amount": "መጠን",
+  "category": "ምድብ",
+  "date": "ቀን",
+  "addExpense": "ወጪ ጨምር",
+  "totalSpent": "ጠቅላላ ወጪ"
+}

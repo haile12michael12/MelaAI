@@ -1,0 +1,18 @@
+{
+  "dashboard": "Dashboard",
+  "finance": "Finance",
+  "investments": "Investments",
+  "netWorth": "Net worth",
+  "subscriptions": "Subscriptions",
+  "goals": "Goals",
+  "tasks": "Tasks",
+  "calendar": "Calendar",
+  "habits": "Habits",
+  "books": "Books",
+  "media": "Media",
+  "notes": "Notes",
+  "documents": "Documents",
+  "analytics": "Analytics",
+  "settings": "Settings",
+  "signOut": "Sign out"
+}

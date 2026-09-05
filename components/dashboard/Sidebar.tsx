@@ -91,6 +91,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Main Navigation */}
       <div className="flex flex-1 flex-col gap-1 overflow-y-auto">
+        <a href="/dashboard" className="mb-1 flex items-center gap-3 rounded-lg bg-indigo-50 px-3.5 py-2.5 text-[13px] font-semibold text-indigo-700 no-underline transition-all duration-200 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:text-indigo-300 dark:hover:bg-indigo-900/50">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <span>MELA Dashboard</span>
+        </a>
+
         {/* Finance group */}
         <div onClick={() => setActiveTab("expenses")} className={navLinkClass(activeTab === "expenses")}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>

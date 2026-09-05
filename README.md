@@ -191,8 +191,8 @@ npm run lint
 ## 🌐 Internationalization (i18n)
 
 MelaAI includes built-in multilingual support with locale dictionaries located in `i18n/`:
-- 🇬🇧 English (`i18n/en/common.json`)
-- 🇪🇹 Amharic (`i18n/am/common.json`)
+- English (`i18n/en/`): common, finance, Mela, and navigation dictionaries
+- Amharic (`i18n/am/`): common, finance, Mela, and navigation dictionaries
 
 ---
 

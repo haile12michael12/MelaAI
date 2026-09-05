@@ -1,0 +1,18 @@
+{
+  "dashboard": "ዳሽቦርድ",
+  "finance": "ፋይናንስ",
+  "investments": "ኢንቨስትመንቶች",
+  "netWorth": "ጠቅላላ ሀብት",
+  "subscriptions": "ምዝገባዎች",
+  "goals": "ግቦች",
+  "tasks": "ተግባራት",
+  "calendar": "የቀን መቁጠሪያ",
+  "habits": "ልማዶች",
+  "books": "መጻሕፍት",
+  "media": "ሚዲያ",
+  "notes": "ማስታወሻዎች",
+  "documents": "ሰነዶች",
+  "analytics": "ትንታኔ",
+  "settings": "ቅንብሮች",
+  "signOut": "ውጣ"
+}
