@@ -1,1 +1,1 @@
-export const melaTools = [];
+export * from "./tool-registry";
