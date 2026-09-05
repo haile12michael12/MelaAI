@@ -1,0 +1,21 @@
+name: API Health Check
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  trigger-cron:
+    uses: ./.github/workflows/shared-cron-action.yml
+    with:
+      endpoint: /api/cron/health
+      job_name: API Health Check
+      method: GET
+    secrets:
+      APP_URL: ${{ secrets.APP_URL }}
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}

@@ -1,0 +1,21 @@
+name: Monthly Expense Summary Cron
+
+on:
+  schedule:
+    # Runs at 04:30 UTC (10:00 AM IST) on day 1 of the month
+    - cron: '30 4 1 * *'
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+permissions:
+  contents: read
+
+jobs:
+  trigger-cron:
+    uses: ./.github/workflows/shared-cron-action.yml
+    with:
+      endpoint: /api/cron/expenses?period=monthly
+      job_name: Monthly Expense Summary
+    secrets:
+      APP_URL: ${{ secrets.APP_URL }}
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}

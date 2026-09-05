@@ -1,0 +1,139 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap');
+@import "tailwindcss";
+
+/* Mirrors the :root tokens below into Tailwind's theme namespace (bg-bg-primary,
+   text-text-primary, rounded-card, ...) without renaming the existing vars that
+   inline styles across the app still read directly. */
+@theme {
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-card: var(--bg-card);
+  --color-bg-sidebar: var(--bg-sidebar);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-hover: var(--border-hover);
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-yellow: var(--accent-yellow);
+
+  --radius-card: 10px;
+  --radius-button: 9999px;
+
+  --shadow-subtle: 0 2px 10px -2px rgba(110, 108, 100, 0.03);
+  --shadow-focus: 0 0 0 3px rgba(28, 27, 24, 0.05);
+
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --font-serif: 'Playfair Display', serif;
+}
+
+/* Wrapped in Tailwind's "base" layer so utility classes (which live in the
+   higher-priority "utilities" layer) can always override these base element
+   resets — unlayered CSS otherwise beats any @layer'd CSS regardless of
+   specificity, which was silently overriding Tailwind's button/input/etc.
+   utilities. */
+@layer base {
+:root {
+  --bg-primary: #F5F1EB; /* warm creamy paper canvas */
+  --bg-secondary: #EBE5DB; /* slightly darker warm neutral */
+  --bg-card: #FAF7F2; /* pure clean off-white for cards */
+  --bg-sidebar: #FAF7F2; /* pure clean off-white for sidebar */
+  --text-primary: #1A1A1A; /* deep charcoal black */
+  --text-secondary: #6B685F; /* subtle warm grey */
+  --text-muted: #9E9C94; /* soft warm grey */
+  --border-subtle: #DCD8D0; /* elegant fine lines */
+  --border-hover: #C5BFA0; /* active border hover state */
+  --accent-blue: #A0C4E2; /* pastel aesthetic blue */
+  --accent-yellow: #E5B85C; /* pastel aesthetic mustard yellow */
+  
+  --shadow-subtle: 0 2px 10px -2px rgba(110, 108, 100, 0.03); /* flattened print look */
+  --shadow-focus: 0 0 0 3px rgba(28, 27, 24, 0.05);
+  
+  --radius-card: 10px; /* elegant, slightly sharp corners */
+  --radius-button: 9999px; /* pill shaped buttons */
+  
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+}
+
+[data-theme="monolith"] {
+  --bg-primary: #F3F8FA;
+  --bg-secondary: #E6F0F5;
+  --bg-card: #FFFFFF;
+  --bg-sidebar: #FFFFFF;
+  --text-primary: #0A1628;
+  --text-secondary: #4A5A6E;
+  --text-muted: #8A9AA8;
+  --border-subtle: #E2EEF4;
+  --border-hover: #CBDDE7;
+  --radius-card: 24px;
+}
+
+
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* Form inputs & dropdowns */
+input, select, textarea {
+  font-family: var(--font-body);
+  font-size: 13px;
+  border: 1px solid var(--border-subtle);
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border-radius: 8px;
+  padding: 8px 12px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-focus);
+}
+
+/* Buttons */
+button {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: var(--radius-button);
+  padding: 10px 20px;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+/* Referenced via Tailwind's arbitrary animate-[fadeIn_...] utility across the
+   dashboard tab components. */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-hover);
+}
+} /* end @layer base */

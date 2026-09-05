@@ -1,0 +1,40 @@
+_______________________________________________________________________________
+
+DESIGNER | デザイナー
+
+Adithya Krishnan
+Software Engineer & Creator of Continuum.
+
+Website: https://www.adithyakrishnan.com
+GitHub: https://github.com/fal3n-4ngel
+Twitter: https://twitter.com/fal3n_4ngel
+
+_______________________________________________________________________________
+
+TECHNOLOGY | テクノロジー
+
+React
+Next.js
+Tailwind CSS
+Firebase
+
+_______________________________________________________________________________
+
+FONTS | フォント
+
+Plus Jakarta Sans
+Playfair Display
+
+_______________________________________________________________________________
+
+GRAPHIC ASSETS | グラフィック素材
+
+Icons: lucide-react
+Tools: Figma
+
+_______________________________________________________________________________
+
+LICENSE | ライセンス
+
+Licensed under the MIT License
+_______________________________________________________________________________

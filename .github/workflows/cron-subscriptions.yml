@@ -1,0 +1,21 @@
+name: Daily Subscription Alert Cron
+
+on:
+  schedule:
+    # Runs at 03:00 UTC (8:30 AM IST) every day
+    - cron: '0 3 * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+permissions:
+  contents: read
+
+jobs:
+  trigger-cron:
+    uses: ./.github/workflows/shared-cron-action.yml
+    with:
+      endpoint: /api/cron/subscriptions
+      job_name: Daily Subscription Alerts
+    secrets:
+      APP_URL: ${{ secrets.APP_URL }}
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}

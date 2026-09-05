@@ -1,0 +1,62 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Lint, Typecheck, Test & Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint
+        run: npm run lint
+        env:
+          # eslint-config-next/typescript does type-aware linting, which
+          # builds a full TS program graph and can exceed Node's default
+          # ~4GB old-space heap ceiling on this codebase — well within the
+          # ubuntu-latest runner's 7GB RAM, so just raise the ceiling.
+          NODE_OPTIONS: --max-old-space-size=6144
+
+      - name: TypeScript Type Check
+        run: npx tsc --noEmit
+
+      - name: Run Integration Tests
+        run: npm run test
+
+      - name: Run build
+        run: npm run build
+        env:
+          # Dummy values for build validation
+          NEXT_PUBLIC_ANILIST_CLIENT_ID: "46468"
+          NEXT_PUBLIC_TRAKT_CLIENT_ID: "dummy_client_id"
+          FIREBASE_CONFIG: '{"apiKey": "dummy", "authDomain": "dummy", "projectId": "dummy", "storageBucket": "dummy", "messagingSenderId": "dummy", "appId": "dummy"}'
+
+  # Only alerts for pushes to the default branch — a PR author already sees
+  # their own red check, but a broken main is what actually needs chasing.
+  alert:
+    needs: validate
+    if: failure() && github.event_name == 'push'
+    uses: ./.github/workflows/discord-notify.yml
+    with:
+      title: "🚨 CI Failed on ${{ github.ref_name }}"
+      description: "`${{ github.workflow }}` failed for commit `${{ github.sha }}` by ${{ github.actor }}."
+    secrets:
+      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}

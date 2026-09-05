@@ -1,0 +1,21 @@
+name: Daily Portfolio Close Cron
+
+on:
+  schedule:
+    # Runs at 12:00 UTC (5:30 PM IST) Monday to Friday
+    - cron: '0 12 * * 1-5'
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+permissions:
+  contents: read
+
+jobs:
+  trigger-cron:
+    uses: ./.github/workflows/shared-cron-action.yml
+    with:
+      endpoint: /api/cron/portfolio
+      job_name: Daily Portfolio Close
+    secrets:
+      APP_URL: ${{ secrets.APP_URL }}
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
