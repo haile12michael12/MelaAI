@@ -12,6 +12,14 @@ export default function MelaPage() {
       color: "from-indigo-600 to-purple-600 text-white",
     },
     {
+      title: "Finance Intelligence",
+      desc: "Deterministic financial health score, multi-currency cash flow, recurring expense & anomaly detection, and Q&A.",
+      href: "/mela/finance",
+      icon: Lightbulb,
+      badge: "Finance Engine",
+      color: "from-emerald-600 to-teal-600 text-white",
+    },
+    {
       title: "AI Insights",
       desc: "Proactive financial trends, spending velocity, and habit consistency analysis.",
       href: "/mela/insights",
