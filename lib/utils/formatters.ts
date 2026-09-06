@@ -3,14 +3,31 @@
  * ensuring the UI displays only the concise currency symbol.
  */
 export function getCurrencySymbol(currencySymbolOrCode?: string | null): string {
-  if (!currencySymbolOrCode) return "₹";
+  if (!currencySymbolOrCode) return "Br";
   const trimmed = currencySymbolOrCode.trim();
+  if (trimmed === "ETB" || trimmed === "Br" || trimmed === "ብር") return "Br";
   if (trimmed === "INR") return "₹";
   if (trimmed === "USD") return "$";
   if (trimmed === "EUR") return "€";
   if (trimmed === "GBP") return "£";
   if (trimmed === "JPY") return "¥";
   return trimmed;
+}
+
+/**
+ * Formats a number as Ethiopian Birr (ETB).
+ * @param amount The number to format
+ * @param prefix Whether to put "Br" before the amount (default: false -> "1,500.00 Br")
+ */
+export function formatETB(amount: number, prefix: boolean = false, maxFractions: number = 2, minFractions: number = 2): string {
+  if (isNaN(amount) || amount === null || amount === undefined) {
+    return prefix ? "Br 0.00" : "0.00 Br";
+  }
+  const formatted = amount.toLocaleString("en-US", {
+    maximumFractionDigits: maxFractions,
+    minimumFractionDigits: minFractions,
+  });
+  return prefix ? `Br ${formatted}` : `${formatted} Br`;
 }
 
 /**

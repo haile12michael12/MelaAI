@@ -4,4 +4,6 @@ export interface BookItem {
   author: string;
   status: "reading" | "completed" | "want_to_read";
   rating?: number;
+  coverImage?: string;
+  progress?: number;
 }

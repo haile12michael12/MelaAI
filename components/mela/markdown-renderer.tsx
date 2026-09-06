@@ -91,7 +91,7 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
 
   const formatInline = (text: string): React.ReactNode => {
     // Bold formatting: **text**
-    const parts = text.split(/(**.*?**|`.*?`)/g);
+    const parts = text.split(/(\*\*.*?\*\*|`.*?`)/g);
     return parts.map((part, index) => {
       if (part.startsWith("**") && part.endsWith("**")) {
         return <strong key={index} className="font-semibold text-neutral-950 dark:text-white">{part.slice(2, -2)}</strong>;

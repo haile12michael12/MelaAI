@@ -13,6 +13,11 @@
   "notes": "Notes",
   "documents": "Documents",
   "analytics": "Analytics",
+  "automations": "Automations",
+  "assistant": "MELA AI Assistant",
+  "insights": "AI Insights",
+  "classicView": "Continuum Classic View",
+  "search": "Universal Search",
   "settings": "Settings",
   "signOut": "Sign out"
 }

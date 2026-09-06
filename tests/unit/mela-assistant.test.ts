@@ -12,7 +12,7 @@ describe("MELA AI Assistant Core", () => {
   });
 
   it("declares function tools for all key operations", () => {
-    const names = melaFunctionDeclarations.map((t) => t.name);
+    const names = melaFunctionDeclarations.map((t: any) => t.name);
     expect(names).toContain("listExpenses");
     expect(names).toContain("createExpense");
     expect(names).toContain("getPortfolio");

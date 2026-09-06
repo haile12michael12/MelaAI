@@ -9,13 +9,13 @@ import type { ExpenseRecord } from '@/lib/firebase';
 
 describe('MelaFinanceIntelligence Service', () => {
   const mockExpenses: ExpenseRecord[] = [
-    { id: '1', date: '2026-08-01', amount: 300, title: 'Teff Market', category: 'Food & Teff (ምግብ / ጤፍ)' },
-    { id: '2', date: '2026-08-10', amount: 150, title: 'Ride Addis', category: 'Transport & Ride (ትራንስፖርት / ራይድ)' },
-    { id: '3', date: '2026-08-15', amount: 500, title: 'Monthly Equb', category: 'Equb (እቁብ)' },
-    { id: '4', date: '2026-08-20', amount: 100, title: 'Ethio Telecom Package', category: 'Utilities & Tele (መብራት / ውሃ / ቴሌ)' },
-    { id: '5', date: '2026-08-25', amount: 300, title: 'Teff Market', category: 'Food & Teff (ምግብ / ጤፍ)' },
-    { id: '6', date: '2026-07-05', amount: 450, title: 'Supermarket Teff', category: 'Food & Teff (ምግብ / ጤፍ)' },
-    { id: '7', date: '2026-07-15', amount: 500, title: 'Monthly Equb', category: 'Equb (እቁብ)' },
+    { id: '1', date: '2026-08-01', amount: 300, title: 'Teff Market', category: 'Food & Teff (ምግብ / ጤፍ)', notes: null, createdAt: 1722470400000 },
+    { id: '2', date: '2026-08-10', amount: 150, title: 'Ride Addis', category: 'Transport & Ride (ትራንስፖርት / ራይድ)', notes: null, createdAt: 1723248000000 },
+    { id: '3', date: '2026-08-15', amount: 500, title: 'Monthly Equb', category: 'Equb (እቁብ)', notes: null, createdAt: 1723680000000 },
+    { id: '4', date: '2026-08-20', amount: 100, title: 'Ethio Telecom Package', category: 'Utilities & Tele (መብራት / ውሃ / ቴሌ)', notes: null, createdAt: 1724112000000 },
+    { id: '5', date: '2026-08-25', amount: 300, title: 'Teff Market', category: 'Food & Teff (ምግብ / ጤፍ)', notes: null, createdAt: 1724544000000 },
+    { id: '6', date: '2026-07-05', amount: 450, title: 'Supermarket Teff', category: 'Food & Teff (ምግብ / ጤፍ)', notes: null, createdAt: 1720137600000 },
+    { id: '7', date: '2026-07-15', amount: 500, title: 'Monthly Equb', category: 'Equb (እቁብ)', notes: null, createdAt: 1721001600000 },
   ];
 
   it('calculates deterministic spending analysis', () => {

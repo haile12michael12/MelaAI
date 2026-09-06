@@ -30,10 +30,11 @@ const FIELD_LABEL = "mb-1.5 block text-[11px] font-medium text-text-muted";
 const SELECT_CLASS = "w-full rounded-lg border border-border-subtle bg-bg-card px-3 py-2 text-[13px] text-text-primary outline-none transition-all duration-200 focus:border-border-hover focus:shadow-focus";
 
 const CURRENCIES = [
-  { symbol: "₹", label: "INR (₹)" },
+  { symbol: "Br", label: "ETB (Br) — Ethiopian Birr" },
   { symbol: "$", label: "USD ($)" },
   { symbol: "€", label: "EUR (€)" },
   { symbol: "£", label: "GBP (£)" },
+  { symbol: "₹", label: "INR (₹)" },
   { symbol: "¥", label: "JPY (¥)" },
 ];
 

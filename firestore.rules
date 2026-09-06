@@ -74,6 +74,49 @@ service cloud.firestore {
       }
     }
 
+    // ─── MELA AI Personal OS Additive Collections ───
+
+    // MELA AI: Goals per user, keyed by uid
+    match /goals/{userId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+
+    // MELA AI: Tasks per user, keyed by uid
+    match /tasks/{userId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+
+    // MELA AI: Habits per user, keyed by uid
+    match /habits/{userId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+
+    // MELA AI: Documents vault per user, keyed by uid
+    match /documents/{userId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+
+    // MELA AI: Automations per user, keyed by uid
+    match /automations/{userId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+
+    // MELA AI: Assistant conversations per user, keyed by uid
+    match /mela_conversations/{userId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+      
+      match /messages/{messageId} {
+        allow read, write: if request.auth != null
+                           && request.auth.uid == userId;
+      }
+    }
+
     // Everything else is denied.
     match /{document=**} {
       allow read, write: if false;
