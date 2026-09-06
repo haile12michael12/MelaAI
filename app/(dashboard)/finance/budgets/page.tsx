@@ -1,5 +1,7 @@
+import { RoutePlaceholder } from "@/components/route-placeholder";
 "use client";
 
+export default function BudgetsPage() { return <RoutePlaceholder title="Budgets" />; }
 import React, { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Plus, PieChart, AlertTriangle, CheckCircle2 } from "lucide-react";

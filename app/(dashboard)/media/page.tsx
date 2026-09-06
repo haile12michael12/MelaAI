@@ -1,5 +1,7 @@
+import { RoutePlaceholder } from "@/components/route-placeholder";
 "use client";
 
+export default function MediaPage() { return <RoutePlaceholder title="Media" />; }
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import type { WatchlistItem } from "@/types";

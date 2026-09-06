@@ -1,5 +1,7 @@
+import { RoutePlaceholder } from "@/components/route-placeholder";
 "use client";
 
+export default function BooksPage() { return <RoutePlaceholder title="Books" />; }
 import React, { useState } from "react";
 import { BookOpen, Search, Plus, Star, CheckCircle, Clock } from "lucide-react";
 import type { BookItem } from "@/types/books";

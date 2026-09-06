@@ -1,5 +1,7 @@
+import { RoutePlaceholder } from "@/components/route-placeholder";
 "use client";
 
+export default function CalendarPage() { return <RoutePlaceholder title="Calendar" />; }
 import React, { useState, useMemo } from "react";
 import {
   toEthiopianDate,

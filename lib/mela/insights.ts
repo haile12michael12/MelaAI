@@ -1,3 +1,5 @@
+export async function generateMelaInsights() {
+  return [];
 export interface MelaInsight {
   id: string;
   title: string;

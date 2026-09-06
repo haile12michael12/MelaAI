@@ -7,6 +7,7 @@ import { MobileNav } from "@/components/layout/mobile-nav";
 import { CommandPalette } from "@/components/layout/command-palette";
 
 export default function DashboardLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  return children;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (

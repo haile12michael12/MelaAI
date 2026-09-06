@@ -1,3 +1,5 @@
+export async function melaSearch(query: string) {
+  return { query, results: [] };
 import { Session } from "@/lib/auth";
 import {
   listExpenses,

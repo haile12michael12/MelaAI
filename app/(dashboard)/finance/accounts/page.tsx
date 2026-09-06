@@ -1,5 +1,7 @@
+import { RoutePlaceholder } from "@/components/route-placeholder";
 "use client";
 
+export default function AccountsPage() { return <RoutePlaceholder title="Accounts" />; }
 import React, { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Plus, Phone, Building2, CreditCard, Banknote, ShieldCheck } from "lucide-react";

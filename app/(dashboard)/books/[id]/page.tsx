@@ -1,5 +1,7 @@
+import { RoutePlaceholder } from "@/components/route-placeholder";
 "use client";
 
+export default function BookDetailsPage() { return <RoutePlaceholder title="Book details" />; }
 import React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";

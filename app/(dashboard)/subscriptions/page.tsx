@@ -1,5 +1,7 @@
+import { RoutePlaceholder } from "@/components/route-placeholder";
 "use client";
 
+export default function SubscriptionsPage() { return <RoutePlaceholder title="Subscriptions" />; }
 import React, { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import type { Subscription } from "@/types";

@@ -1,5 +1,7 @@
+import { RoutePlaceholder } from "@/components/route-placeholder";
 "use client";
 
+export default function ReadingPage() { return <RoutePlaceholder title="Reading" />; }
 import React from "react";
 import Link from "next/link";
 import { BookOpen, ArrowLeft, Clock, CheckCircle2, Star } from "lucide-react";

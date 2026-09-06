@@ -1,5 +1,7 @@
+import { RoutePlaceholder } from "@/components/route-placeholder";
 "use client";
 
+export default function CreateAutomationPage() { return <RoutePlaceholder title="Create automation" />; }
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

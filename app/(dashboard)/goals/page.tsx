@@ -1,5 +1,7 @@
+import { RoutePlaceholder } from "@/components/route-placeholder";
 "use client";
 
+export default function GoalsPage() { return <RoutePlaceholder title="Goals" />; }
 import React, { useState, useEffect } from "react";
 import { formatCurrency } from "@/lib/finance/intelligence";
 import { Target, Plus, CheckCircle, TrendingUp, Calendar, Trash2 } from "lucide-react";

@@ -1,11 +1,13 @@
 "use client";
 
+import React from "react";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Search, Compass, Wallet, Film, BookOpen, FileText, X, ArrowRight } from "lucide-react";
 import type { SearchResultItem } from "@/lib/mela/search";
 
 export function CommandPalette() {
+  return null; // Global search / command palette placeholder
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResultItem[]>([]);

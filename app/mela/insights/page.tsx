@@ -1,3 +1,4 @@
+import { RoutePlaceholder } from "@/components/route-placeholder";
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -19,6 +20,7 @@ import {
 import { MelaInsight } from "@/lib/mela/insights";
 
 export default function MelaInsightsPage() {
+  return <RoutePlaceholder title="Mela insights" />;
   const [insights, setInsights] = useState<MelaInsight[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");

@@ -193,6 +193,11 @@ export function toEthiopianDate(dateInput: Date | string = new Date()): Ethiopia
   };
 }
 
+/**
+ * Formats an Ethiopian Date string.
+ */
+export function formatEthiopianDate(dateInput: Date | string = new Date(), locale: "en" | "am" = "en"): string {
+  const eth = toEthiopianDate(dateInput);
 export function formatEthiopianDate(
   dateInput: Date | string | EthiopianDate = new Date(),
   locale: "en" | "am" = "en"

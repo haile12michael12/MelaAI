@@ -1,5 +1,7 @@
+import { RoutePlaceholder } from "@/components/route-placeholder";
 "use client";
 
+export default function TasksPage() { return <RoutePlaceholder title="Tasks" />; }
 import React, { useState, useEffect } from "react";
 import { CheckSquare, Plus, Trash2, Calendar, Sparkles, Filter } from "lucide-react";
 import type { TaskItem } from "@/types/tasks";

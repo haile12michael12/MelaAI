@@ -1,5 +1,7 @@
+import { RoutePlaceholder } from "@/components/route-placeholder";
 "use client";
 
+export default function FinancePage() { return <RoutePlaceholder title="Finance" />; }
 import React, { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import type { ExpenseRecord } from "@/lib/firebase";

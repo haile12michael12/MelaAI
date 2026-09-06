@@ -1,5 +1,7 @@
+import { RoutePlaceholder } from "@/components/route-placeholder";
 "use client";
 
+export default function ProductivityAnalyticsPage() { return <RoutePlaceholder title="Productivity analytics" />; }
 import React from "react";
 import Link from "next/link";
 import {

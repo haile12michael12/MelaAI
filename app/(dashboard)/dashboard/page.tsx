@@ -30,6 +30,7 @@ export default function MelaDashboardPage() {
   const { user, loading: authLoading, loginWithGoogle } = useAuth();
 
   // Data states
+  const [currency, setCurrency] = useState("$");
   const [currency, setCurrency] = useState("Br");
   const [monthlySalary, setMonthlySalary] = useState(0);
   const [expenses, setExpenses] = useState<ExpenseRecord[]>([]);
@@ -269,6 +270,52 @@ export default function MelaDashboardPage() {
 
   return (
     <DashboardErrorBoundary fallbackTitle="MELA Dashboard Error">
+      <div className="min-h-screen bg-neutral-50/50 pb-20 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-50">
+        {/* Top Header Bar */}
+        <header className="sticky top-0 z-30 border-b border-neutral-200/80 bg-white/80 px-6 py-4 backdrop-blur-md dark:border-neutral-800/80 dark:bg-neutral-900/80">
+          <div className="mx-auto flex max-w-7xl items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-neutral-900 text-white shadow-xs dark:bg-white dark:text-neutral-900">
+                <Sparkles className="h-5 w-5" />
+              </div>
+              <div>
+                <h1 className="text-base font-bold tracking-tight text-neutral-950 dark:text-white">MELA Dashboard</h1>
+                <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                  Personal AI Operating System
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Link
+                href="/"
+                className="hidden items-center gap-1.5 rounded-xl border border-neutral-200/80 bg-white px-3 py-1.5 text-xs font-medium text-neutral-600 transition hover:bg-neutral-100 sm:inline-flex dark:border-neutral-800 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
+              >
+                <Compass className="h-3.5 w-3.5" />
+                <span>Classic View</span>
+              </Link>
+
+              {user ? (
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-full bg-indigo-600 text-center font-bold leading-8 text-white text-xs">
+                    {user.displayName ? user.displayName[0].toUpperCase() : "U"}
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={loginWithGoogle}
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-neutral-900 px-3.5 py-1.5 text-xs font-semibold text-white transition hover:bg-neutral-800 dark:bg-white dark:text-neutral-900"
+                >
+                  <LogIn className="h-3.5 w-3.5" />
+                  Sign In
+                </button>
+              )}
+            </div>
+          </div>
+        </header>
+
+        {/* Main Content Area */}
+        <main className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6">
       <div className="mx-auto max-w-7xl space-y-6">
           {/* Quick Actions Bar */}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -382,6 +429,7 @@ export default function MelaDashboardPage() {
               notes: <QuickNotesWidget />,
             }}
           />
+        </main>
 
         {/* Quick Mela AI Chat Modal */}
         <MelaQuickChatModal

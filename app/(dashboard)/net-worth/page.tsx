@@ -1,5 +1,7 @@
+import { RoutePlaceholder } from "@/components/route-placeholder";
 "use client";
 
+export default function NetWorthPage() { return <RoutePlaceholder title="Net worth" />; }
 import React, { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { formatCurrency } from "@/lib/finance/intelligence";

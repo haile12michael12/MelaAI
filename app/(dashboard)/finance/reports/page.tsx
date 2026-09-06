@@ -1,5 +1,7 @@
+import { RoutePlaceholder } from "@/components/route-placeholder";
 "use client";
 
+export default function FinanceReportsPage() { return <RoutePlaceholder title="Finance reports" />; }
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { ArrowLeft, BarChart3, TrendingUp, Calendar, Download } from "lucide-react";

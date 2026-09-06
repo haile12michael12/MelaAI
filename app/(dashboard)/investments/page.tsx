@@ -1,5 +1,7 @@
+import { RoutePlaceholder } from "@/components/route-placeholder";
 "use client";
 
+export default function InvestmentsPage() { return <RoutePlaceholder title="Investments" />; }
 import React, { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import type { InvestmentAsset } from "@/types";

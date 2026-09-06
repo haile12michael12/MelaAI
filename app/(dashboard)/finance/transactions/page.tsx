@@ -1,5 +1,7 @@
+import { RoutePlaceholder } from "@/components/route-placeholder";
 "use client";
 
+export default function TransactionsPage() { return <RoutePlaceholder title="Transactions" />; }
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowUpRight, ArrowDownLeft, Search } from "lucide-react";

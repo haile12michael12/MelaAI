@@ -1,5 +1,7 @@
+import { RoutePlaceholder } from "@/components/route-placeholder";
 "use client";
 
+export default function FinancialAnalyticsPage() { return <RoutePlaceholder title="Financial analytics" />; }
 import React, { useState } from "react";
 import Link from "next/link";
 import {

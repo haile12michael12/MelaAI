@@ -1,5 +1,7 @@
+import { RoutePlaceholder } from "@/components/route-placeholder";
 "use client";
 
+export default function DocumentsPage() { return <RoutePlaceholder title="Documents" />; }
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import {

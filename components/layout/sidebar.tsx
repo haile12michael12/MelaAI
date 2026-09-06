@@ -84,6 +84,16 @@ export function Sidebar() {
   const { t } = useI18n();
 
   return (
+    <aside className="w-64 border-r border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+      <div className="mb-6 font-semibold text-lg">MelaAI</div>
+      <nav className="space-y-1 text-sm">
+        <Link href="/dashboard" className="block rounded px-3 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-800">Dashboard</Link>
+        <Link href="/finance" className="block rounded px-3 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-800">Finance</Link>
+        <Link href="/investments" className="block rounded px-3 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-800">Investments</Link>
+        <Link href="/goals" className="block rounded px-3 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-800">Goals</Link>
+        <Link href="/tasks" className="block rounded px-3 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-800">Tasks</Link>
+        <Link href="/mela" className="block rounded px-3 py-2 font-medium text-emerald-600 dark:text-emerald-400">Mela AI</Link>
+      </nav>
     <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-neutral-200/80 bg-white/95 px-4 py-5 backdrop-blur-md md:flex dark:border-neutral-800/80 dark:bg-neutral-900/95">
       {/* Brand Header */}
       <div className="mb-5 flex items-center justify-between px-2">

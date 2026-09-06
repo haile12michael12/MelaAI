@@ -1,5 +1,7 @@
+import { RoutePlaceholder } from "@/components/route-placeholder";
 "use client";
 
+export default function NotesPage() { return <RoutePlaceholder title="Notes" />; }
 import React, { useState, useEffect, useMemo } from "react";
 import {
   FileText,

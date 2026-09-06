@@ -1,5 +1,7 @@
+import { RoutePlaceholder } from "@/components/route-placeholder";
 "use client";
 
+export default function LifestyleAnalyticsPage() { return <RoutePlaceholder title="Lifestyle analytics" />; }
 import React from "react";
 import Link from "next/link";
 import {

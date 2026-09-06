@@ -6,6 +6,7 @@ import { useI18n } from "@/hooks/useI18n";
 import { toEthiopianDate } from "@/lib/utils/ethiopian-calendar";
 import { Search, Globe, Coins, Sparkles, LogIn, LogOut, Menu } from "lucide-react";
 
+export function Header() {
 interface HeaderProps {
   onOpenMobileMenu?: () => void;
 }
@@ -27,6 +28,10 @@ export function Header({ onOpenMobileMenu }: HeaderProps) {
   };
 
   return (
+    <header className="flex h-16 items-center justify-between border-b border-neutral-200 px-6 dark:border-neutral-800">
+      <div className="font-medium">MelaAI Platform</div>
+      <div className="flex items-center gap-4">
+        {/* Header actions */}
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-neutral-200/80 bg-white/80 px-4 backdrop-blur-md md:px-6 dark:border-neutral-800/80 dark:bg-neutral-900/80">
       {/* Left side: Mobile menu toggle + Search Trigger */}
       <div className="flex items-center gap-3">

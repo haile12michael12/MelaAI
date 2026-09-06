@@ -1,5 +1,7 @@
+import { RoutePlaceholder } from "@/components/route-placeholder";
 "use client";
 
+export default function HabitsPage() { return <RoutePlaceholder title="Habits" />; }
 import React, { useState, useEffect } from "react";
 import { Zap, Plus, Check, Flame, Award, Trash2 } from "lucide-react";
 
