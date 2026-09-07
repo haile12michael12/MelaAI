@@ -7,15 +7,11 @@ import { MobileNav } from "@/components/layout/mobile-nav";
 import { CommandPalette } from "@/components/layout/command-palette";
 
 export default function DashboardLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return children;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <div className="flex min-h-screen bg-neutral-50/50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-50">
-      {/* Desktop Navigation Sidebar */}
       <Sidebar />
-
-      {/* Mobile Drawer Overlay (when mobileMenuOpen) */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 flex md:hidden">
           <div
@@ -27,19 +23,13 @@ export default function DashboardLayout({ children }: Readonly<{ children: React
           </div>
         </div>
       )}
-
-      {/* Main Content Area */}
       <div className="flex flex-1 flex-col overflow-hidden">
         <Header onOpenMobileMenu={() => setMobileMenuOpen(true)} />
         <main className="flex-1 overflow-y-auto p-4 pb-20 md:p-8 md:pb-8">
           {children}
         </main>
       </div>
-
-      {/* Bottom Navigation for Mobile */}
       <MobileNav />
-
-      {/* Universal Search Command Palette (Ctrl+K) */}
       <CommandPalette />
     </div>
   );

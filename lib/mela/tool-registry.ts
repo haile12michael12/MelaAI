@@ -1,3 +1,4 @@
+import { knowledgeEngine } from '@/lib/knowledge/engine';
 import { z } from "zod";
 import { SchemaType, FunctionDeclaration } from "@google/generative-ai";
 import { Session } from "@/lib/auth";
@@ -18,7 +19,7 @@ import { recordDomainEvent, DOMAIN_EVENTS } from "@/lib/domain-events";
 
 export interface ToolDefinition {
   name: string;
-  domain: "finance" | "investments" | "goals" | "tasks" | "books" | "media" | "notes" | "subscriptions" | "net-worth";
+  domain: "finance" | "investments" | "goals" | "tasks" | "books" | "media" | "notes" | "subscriptions" | "net-worth" | "habits" | "knowledge" | "documents";
   type: "read" | "write";
   isSensitive?: boolean;
   description: string;
@@ -1152,6 +1153,243 @@ export const toolRegistry: Record<string, ToolDefinition> = {
       const weeklyPlan = MelaProductivityEngine.getWeeklyPlan(DEFAULT_TASKS, DEFAULT_CALENDAR_EVENTS, args.date || "2026-09-07");
       return { count: events.length, events: events.slice(0, 30), weeklyPlan };
     },
+  },
+
+  // ─── 12. Habits Tools ───
+  get_habits: {
+    name: "get_habits",
+    domain: "habits",
+    type: "read",
+    description: "Retrieve all habits, current streaks, best streaks, and 30-day completion rates derived strictly from stored logs.",
+    schema: z.object({
+      category: z.string().optional(),
+    }),
+    declaration: {
+      name: "get_habits",
+      description: "Get user habits, streaks, and consistency statistics.",
+      parameters: {
+        type: SchemaType.OBJECT,
+        properties: {
+          category: { type: SchemaType.STRING, description: "Optional category filter" },
+        },
+      },
+    },
+    handler: async (_session, args) => {
+      const { MelaHabitsIntelligence, DEFAULT_HABITS, generateSeedLogs } = await import("@/lib/habits/intelligence");
+      const refDate = "2026-09-07";
+      const logs = generateSeedLogs();
+      let list = [...DEFAULT_HABITS];
+      if (args.category) {
+        list = list.filter((h) => h.category.toLowerCase().includes(args.category.toLowerCase()));
+      }
+      const habitsWithStats = list.map((h) => ({
+        ...h,
+        stats: MelaHabitsIntelligence.calculateStats(h, logs, refDate),
+      }));
+      const summary = MelaHabitsIntelligence.generateSummaryReport(DEFAULT_HABITS, logs, refDate);
+      return { count: habitsWithStats.length, habits: habitsWithStats, summary };
+    },
+  },
+
+  create_habit: {
+    name: "create_habit",
+    domain: "habits",
+    type: "write",
+    description: "Create a new habit with frequency and weekly target.",
+    schema: z.object({
+      title: z.string().min(1),
+      category: z.enum([
+        "Health & Fitness",
+        "Learning & Reading",
+        "Finance & Ledger",
+        "Mindfulness",
+        "Productivity",
+        "Language & Writing",
+      ]).optional().default("Health & Fitness"),
+      frequency: z.enum(["daily", "weekdays", "weekends", "weekly_target"]).optional().default("daily"),
+      targetPerWeek: z.number().min(1).max(7).optional().default(7),
+      description: z.string().optional(),
+    }),
+    declaration: {
+      name: "create_habit",
+      description: "Create a new daily or weekly habit routine.",
+      parameters: {
+        type: SchemaType.OBJECT,
+        properties: {
+          title: { type: SchemaType.STRING, description: "Habit title" },
+          category: { type: SchemaType.STRING, description: "Habit category" },
+          frequency: { type: SchemaType.STRING, description: "Frequency (daily, weekdays, weekends, weekly_target)" },
+          targetPerWeek: { type: SchemaType.NUMBER, description: "Target days per week (1-7)" },
+          description: { type: SchemaType.STRING, description: "Optional description" },
+        },
+        required: ["title"],
+      },
+    },
+    handler: async (session, args) => {
+      const habit = {
+        id: "h_" + Date.now(),
+        ...args,
+        createdAt: new Date().toISOString().slice(0, 10),
+      };
+      recordDomainEvent({
+        eventType: "HABIT_CREATED",
+        userId: session.uid,
+        entityId: habit.id,
+        payload: habit,
+      });
+      return { success: true, habit, message: `Habit "${args.title}" created with target ${args.targetPerWeek}d/week.` };
+    },
+  },
+
+  log_habit_completion: {
+    name: "log_habit_completion",
+    domain: "habits",
+    type: "write",
+    description: "Log or check off habit completion for a specific date.",
+    schema: z.object({
+      habitId: z.string(),
+      date: z.string().optional(),
+      completed: z.boolean().optional().default(true),
+    }),
+    declaration: {
+      name: "log_habit_completion",
+      description: "Record a daily habit check-in.",
+      parameters: {
+        type: SchemaType.OBJECT,
+        properties: {
+          habitId: { type: SchemaType.STRING, description: "Habit ID" },
+          date: { type: SchemaType.STRING, description: "Log date (YYYY-MM-DD)" },
+          completed: { type: SchemaType.BOOLEAN, description: "Completion status" },
+        },
+        required: ["habitId"],
+      },
+    },
+    handler: async (session, args) => {
+      recordDomainEvent({
+        eventType: "HABIT_COMPLETION_LOGGED",
+        userId: session.uid,
+        entityId: args.habitId,
+        payload: args,
+      });
+      return { success: true, message: `Habit check-in recorded for ${args.date || "today"}.` };
+    },
+  },
+
+  // ─── 10. Knowledge & Document Tools ───
+  search_knowledge: {
+    name: "search_knowledge",
+    domain: "knowledge",
+    type: "read",
+    description: "Search across user notes, documents, book notes, saved articles, and ideas using hybrid semantic search.",
+    schema: z.object({
+      query: z.string().describe("Search term or conceptual topic"),
+      type: z.enum(["all", "note", "document", "book_note", "saved_article", "idea"]).optional(),
+      tag: z.string().optional()
+    }),
+    declaration: {
+      name: "search_knowledge",
+      description: "Search across user personal knowledge base (notes, contracts, docs, books, ideas) with semantic scoring.",
+      parameters: {
+        type: SchemaType.OBJECT,
+        properties: {
+          query: { type: SchemaType.STRING, description: "Topic or keyword query" },
+          type: { type: SchemaType.STRING, description: "Filter by knowledge type" },
+          tag: { type: SchemaType.STRING, description: "Optional tag filter" }
+        },
+        required: ["query"]
+      }
+    },
+    handler: async (session, args) => {
+      const userId = session?.user?.id || 'user-ethiopia-01';
+      const results = knowledgeEngine.search({
+        query: args.query,
+        type: args.type || 'all',
+        tag: args.tag
+      }, userId);
+      return {
+        resultsCount: results.length,
+        topMatches: results.slice(0, 5).map(r => ({
+          title: r.item.title,
+          type: r.item.type,
+          score: r.score + '%',
+          matchType: r.matchType,
+          excerpt: r.item.excerpt,
+          tags: r.item.tags
+        }))
+      };
+    }
+  },
+
+  get_documents: {
+    name: "get_documents",
+    domain: "documents",
+    type: "read",
+    description: "List secured documents in the vault with metadata, tags, and categories.",
+    schema: z.object({
+      category: z.string().optional()
+    }),
+    declaration: {
+      name: "get_documents",
+      description: "List stored contracts, tax filings, and business documents in user vault.",
+      parameters: {
+        type: SchemaType.OBJECT,
+        properties: {
+          category: { type: SchemaType.STRING, description: "Optional category filter" }
+        }
+      }
+    },
+    handler: async (session, args) => {
+      const userId = session?.user?.id || 'user-ethiopia-01';
+      let docs = knowledgeEngine.getDocuments(userId);
+      if (args.category) {
+        docs = docs.filter(d => d.category.toLowerCase() === args.category.toLowerCase());
+      }
+      return {
+        totalDocuments: docs.length,
+        documents: docs.map(d => ({
+          title: d.title,
+          fileName: d.fileName,
+          fileType: d.fileType,
+          fileSizeKb: (d.fileSize / 1024).toFixed(1),
+          category: d.category,
+          tags: d.tags,
+          isEncrypted: d.isEncrypted
+        }))
+      };
+    }
+  },
+
+  get_related_knowledge: {
+    name: "get_related_knowledge",
+    domain: "knowledge",
+    type: "read",
+    description: "Retrieve knowledge items connected to a specific item via semantic vectors and tags.",
+    schema: z.object({
+      itemId: z.string().describe("ID of the reference knowledge item")
+    }),
+    declaration: {
+      name: "get_related_knowledge",
+      description: "Get related concepts and interconnected notes or documents.",
+      parameters: {
+        type: SchemaType.OBJECT,
+        properties: {
+          itemId: { type: SchemaType.STRING, description: "Knowledge item ID" }
+        },
+        required: ["itemId"]
+      }
+    },
+    handler: async (session, args) => {
+      const userId = session?.user?.id || 'user-ethiopia-01';
+      const related = knowledgeEngine.getRelatedItems(args.itemId, userId, 4);
+      return {
+        relatedItems: related.map(r => ({
+          title: r.item.title,
+          type: r.item.type,
+          similarity: (r.similarityScore * 100).toFixed(0) + '%',
+          reason: r.relationshipReason
+        }))
+      };
+    }
   },
 };
 

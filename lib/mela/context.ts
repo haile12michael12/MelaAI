@@ -200,6 +200,38 @@ export async function extractDomainContext(session: Session, query: string): Pro
     }
   }
 
+  // Habits & Routines detection
+  if (
+    q.includes("habit") ||
+    q.includes("routine") ||
+    q.includes("streak") ||
+    q.includes("failing to maintain") ||
+    q.includes("best streak") ||
+    q.includes("which habit should i focus on") ||
+    q.includes("focus on") ||
+    q.includes("consistency") ||
+    q.includes("heatmap")
+  ) {
+    try {
+      const { MelaHabitsIntelligence, DEFAULT_HABITS, generateSeedLogs } = await import("@/lib/habits/intelligence");
+      const refDate = "2026-09-07";
+      const logs = generateSeedLogs();
+      const report = MelaHabitsIntelligence.generateSummaryReport(DEFAULT_HABITS, logs, refDate);
+      const qAnswer = MelaHabitsIntelligence.answerQuestion(query, DEFAULT_HABITS, logs, refDate);
+
+      contexts.push({
+        domain: "habits",
+        summary: `User tracks ${report.totalHabits} habits with overall consistency of ${report.overallConsistencyRate}%. Best active streak: ${report.bestActiveStreak.title} (${report.bestActiveStreak.streak} days). Best all-time: ${report.bestAllTimeStreak.title} (${report.bestAllTimeStreak.streak} days). Failing habits: ${report.failingHabits.map((f) => f.title).join(", ") || "None"}. Recommended focus: ${report.focusHabit.title}. Analysis: ${qAnswer.answer}`,
+        data: {
+          summary: report,
+          answer: qAnswer.answer,
+        },
+      });
+    } catch (err) {
+      console.error("[ContextLayer] Habits context error:", err);
+    }
+  }
+
   // Investment / Portfolio detection
   if (
     q.includes("invest") ||
