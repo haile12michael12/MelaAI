@@ -67,6 +67,42 @@ export async function extractDomainContext(session: Session, query: string): Pro
     }
   }
 
+  // Net Worth / Balance Sheet detection
+  if (
+    q.includes("net worth") ||
+    q.includes("balance sheet") ||
+    q.includes("asset") ||
+    q.includes("liability") ||
+    q.includes("liabilities") ||
+    q.includes("debt") ||
+    q.includes("loan") ||
+    q.includes("gold") ||
+    q.includes("real estate") ||
+    q.includes("vehicle")
+  ) {
+    try {
+      const { MelaNetWorthService, DEFAULT_ASSETS, DEFAULT_LIABILITIES, DEFAULT_SNAPSHOTS } = await import("@/lib/finance/net-worth");
+      const summary = MelaNetWorthService.calculateSummary(DEFAULT_ASSETS, DEFAULT_LIABILITIES, DEFAULT_SNAPSHOTS);
+
+      contexts.push({
+        domain: "net-worth",
+        summary: `Current Net Worth is ${summary.currentNetWorth} ETB (Total Assets: ${summary.totalAssets} ETB across ${summary.assetAllocation.length} categories, Total Liabilities: ${summary.totalLiabilities} ETB, Debt-to-Asset Ratio: ${summary.debtToAssetRatio.toFixed(1)}%). MoM Change: +${summary.monthlyChangeAmount} (${summary.monthlyChangePercent.toFixed(1)}%), YoY Change: +${summary.annualChangeAmount} (${summary.annualChangePercent.toFixed(1)}%).`,
+        data: {
+          currentNetWorth: summary.currentNetWorth,
+          totalAssets: summary.totalAssets,
+          totalLiabilities: summary.totalLiabilities,
+          debtToAssetRatio: summary.debtToAssetRatio,
+          monthlyChange: { amount: summary.monthlyChangeAmount, percent: summary.monthlyChangePercent },
+          annualChange: { amount: summary.annualChangeAmount, percent: summary.annualChangePercent },
+          assetAllocation: summary.assetAllocation,
+          liabilityAllocation: summary.liabilityAllocation,
+        }
+      });
+    } catch (err) {
+      console.error("[ContextLayer] Net Worth context error:", err);
+    }
+  }
+
   // Investment / Portfolio detection
   if (
     q.includes("invest") ||
@@ -75,8 +111,6 @@ export async function extractDomainContext(session: Session, query: string): Pro
     q.includes("crypto") ||
     q.includes("mutual fund") ||
     q.includes("sip") ||
-    q.includes("asset") ||
-    q.includes("net worth") ||
     q.includes("pnl") ||
     q.includes("gain") ||
     q.includes("loss")

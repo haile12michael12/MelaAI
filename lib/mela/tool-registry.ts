@@ -18,7 +18,7 @@ import { recordDomainEvent, DOMAIN_EVENTS } from "@/lib/domain-events";
 
 export interface ToolDefinition {
   name: string;
-  domain: "finance" | "investments" | "goals" | "tasks" | "books" | "media" | "notes" | "subscriptions";
+  domain: "finance" | "investments" | "goals" | "tasks" | "books" | "media" | "notes" | "subscriptions" | "net-worth";
   type: "read" | "write";
   isSensitive?: boolean;
   description: string;
@@ -737,6 +737,145 @@ export const toolRegistry: Record<string, ToolDefinition> = {
       const subs = await listSubscriptions(session);
       const sorted = [...subs].sort((a, b) => (a.nextBillingDate || "").localeCompare(b.nextBillingDate || ""));
       return { renewals: sorted.slice(0, 5) };
+    }
+  },
+
+  // ─── 9. Net Worth Tools ───
+  get_net_worth: {
+    name: "get_net_worth",
+    domain: "net-worth",
+    type: "read",
+    description: "Retrieve comprehensive balance sheet and Net Worth analysis (Total Assets - Total Liabilities).",
+    schema: z.object({}),
+    declaration: {
+      name: "get_net_worth",
+      description: "Retrieve total Net Worth, asset allocations, liabilities breakdown, debt ratio, and historical trends.",
+      parameters: { type: SchemaType.OBJECT, properties: {} }
+    },
+    handler: async () => {
+      const { MelaNetWorthService, DEFAULT_ASSETS, DEFAULT_LIABILITIES, DEFAULT_SNAPSHOTS } = await import("@/lib/finance/net-worth");
+      const summary = MelaNetWorthService.calculateSummary(DEFAULT_ASSETS, DEFAULT_LIABILITIES, DEFAULT_SNAPSHOTS);
+      return {
+        currentNetWorth: summary.currentNetWorth,
+        totalAssets: summary.totalAssets,
+        totalLiabilities: summary.totalLiabilities,
+        debtToAssetRatio: summary.debtToAssetRatio,
+        monthlyChange: { amount: summary.monthlyChangeAmount, percent: summary.monthlyChangePercent },
+        annualChange: { amount: summary.annualChangeAmount, percent: summary.annualChangePercent },
+        assetAllocation: summary.assetAllocation,
+        liabilityAllocation: summary.liabilityAllocation,
+      };
+    }
+  },
+
+  create_asset: {
+    name: "create_asset",
+    domain: "net-worth",
+    type: "write",
+    description: "Add a new asset item to the balance sheet (e.g. Real Estate, Gold, Cash, Vehicles, Crypto).",
+    schema: z.object({
+      name: z.string().min(1),
+      category: z.enum(["Cash", "Bank Accounts", "Investments", "Crypto", "Gold", "Real Estate", "Vehicles", "Other Assets"]),
+      amount: z.number().positive(),
+      institutionOrLocation: z.string().optional(),
+      notes: z.string().optional(),
+    }),
+    declaration: {
+      name: "create_asset",
+      description: "Add an asset item to user's net worth ledger.",
+      parameters: {
+        type: SchemaType.OBJECT,
+        properties: {
+          name: { type: SchemaType.STRING, description: "Name of the asset" },
+          category: { type: SchemaType.STRING, description: "Category (Cash, Bank Accounts, Investments, Crypto, Gold, Real Estate, Vehicles, Other Assets)" },
+          amount: { type: SchemaType.NUMBER, description: "Current valuation amount" },
+          institutionOrLocation: { type: SchemaType.STRING, description: "Holding institution, bank, or location" },
+          notes: { type: SchemaType.STRING, description: "Optional notes" }
+        },
+        required: ["name", "category", "amount"]
+      }
+    },
+    handler: async (session, args) => {
+      recordDomainEvent({
+        eventType: DOMAIN_EVENTS.ASSET_CREATED || "ASSET_CREATED",
+        userId: session.uid,
+        entityId: "ast_" + Date.now(),
+        payload: args,
+      });
+      return { success: true, message: `Asset "${args.name}" with valuation ${args.amount} recorded successfully.` };
+    }
+  },
+
+  create_liability: {
+    name: "create_liability",
+    domain: "net-worth",
+    type: "write",
+    description: "Add a liability or debt obligation (e.g. Loan, Credit Card Debt, Personal Debt).",
+    schema: z.object({
+      name: z.string().min(1),
+      category: z.enum(["Loans", "Credit Card Debt", "Personal Debt", "Other Liabilities"]),
+      amount: z.number().positive(),
+      interestRate: z.number().optional(),
+      monthlyPayment: z.number().optional(),
+      lender: z.string().optional(),
+      notes: z.string().optional(),
+    }),
+    declaration: {
+      name: "create_liability",
+      description: "Record a liability or loan on the user's balance sheet.",
+      parameters: {
+        type: SchemaType.OBJECT,
+        properties: {
+          name: { type: SchemaType.STRING, description: "Liability name or loan title" },
+          category: { type: SchemaType.STRING, description: "Category (Loans, Credit Card Debt, Personal Debt, Other Liabilities)" },
+          amount: { type: SchemaType.NUMBER, description: "Outstanding debt amount" },
+          interestRate: { type: SchemaType.NUMBER, description: "Annual interest rate percentage" },
+          monthlyPayment: { type: SchemaType.NUMBER, description: "Monthly payment amount" },
+          lender: { type: SchemaType.STRING, description: "Bank or lender name" },
+          notes: { type: SchemaType.STRING, description: "Optional notes" }
+        },
+        required: ["name", "category", "amount"]
+      }
+    },
+    handler: async (session, args) => {
+      recordDomainEvent({
+        eventType: DOMAIN_EVENTS.LIABILITY_CREATED || "LIABILITY_CREATED",
+        userId: session.uid,
+        entityId: "liab_" + Date.now(),
+        payload: args,
+      });
+      return { success: true, message: `Liability "${args.name}" with outstanding balance ${args.amount} recorded.` };
+    }
+  },
+
+  create_net_worth_snapshot: {
+    name: "create_net_worth_snapshot",
+    domain: "net-worth",
+    type: "write",
+    description: "Capture a timestamped historical snapshot checkpoint of total Net Worth.",
+    schema: z.object({
+      note: z.string().optional(),
+    }),
+    declaration: {
+      name: "create_net_worth_snapshot",
+      description: "Capture current assets and liabilities into a historical snapshot checkpoint.",
+      parameters: {
+        type: SchemaType.OBJECT,
+        properties: {
+          note: { type: SchemaType.STRING, description: "Checkpoint description or milestone label" }
+        }
+      }
+    },
+    handler: async (session, args) => {
+      const { MelaNetWorthService, DEFAULT_ASSETS, DEFAULT_LIABILITIES } = await import("@/lib/finance/net-worth");
+      const snap = MelaNetWorthService.createSnapshot(DEFAULT_ASSETS, DEFAULT_LIABILITIES, args.note || "AI Snapshot");
+      recordDomainEvent({
+        eventType: DOMAIN_EVENTS.NET_WORTH_SNAPSHOT_CREATED || "NET_WORTH_SNAPSHOT_CREATED",
+        userId: session.uid,
+        entityId: snap.id,
+        payload: snap,
+      });
+      return { success: true, snapshot: snap, message: `Historical snapshot captured at ${snap.date} with Net Worth ${snap.netWorth}.` };
     }
   },
 };
