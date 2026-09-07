@@ -103,6 +103,103 @@ export async function extractDomainContext(session: Session, query: string): Pro
     }
   }
 
+  // Goals / Target Savings detection
+  if (
+    q.includes("goal") ||
+    q.includes("target") ||
+    q.includes("laptop") ||
+    q.includes("milestone") ||
+    q.includes("save for") ||
+    q.includes("how much to save") ||
+    q.includes("how much do i need") ||
+    q.includes("emergency fund")
+  ) {
+    try {
+      const { MelaGoalsIntelligence, DEFAULT_GOALS } = await import("@/lib/goals/intelligence");
+      const analyzed = DEFAULT_GOALS.map((g) => ({
+        ...g,
+        intel: MelaGoalsIntelligence.analyzeGoal(g),
+      }));
+
+      const topGoalsSummary = analyzed
+        .map(
+          (g) =>
+            `- ${g.title}: ${g.currentAmount}/${g.targetAmount} ETB (${g.intel.progressPercent}%). Needs ${g.intel.requiredMonthlyContribution} ETB/mo. Pace: ${g.intel.paceStatus} (${g.intel.probabilityScore}% prob).`
+        )
+        .join("\n");
+
+      contexts.push({
+        domain: "goals",
+        summary: `User has ${analyzed.length} active savings goals:\n${topGoalsSummary}`,
+        data: {
+          goals: analyzed.map((g) => ({
+            id: g.id,
+            title: g.title,
+            target: g.targetAmount,
+            current: g.currentAmount,
+            deadline: g.deadline,
+            requiredMonthly: g.intel.requiredMonthlyContribution,
+            requiredWeekly: g.intel.requiredWeeklyContribution,
+            projectedDate: g.intel.projectedCompletionDate,
+            probabilityScore: g.intel.probabilityScore,
+            paceStatus: g.intel.paceStatus,
+            explanation: g.intel.aiExplanation,
+          })),
+        },
+      });
+    } catch (err) {
+      console.error("[ContextLayer] Goals context error:", err);
+    }
+  }
+
+  // Tasks & Productivity detection
+  if (
+    q.includes("task") ||
+    q.includes("todo") ||
+    q.includes("what do i need to do today") ||
+    q.includes("overdue") ||
+    q.includes("plan my week") ||
+    q.includes("agenda") ||
+    q.includes("schedule") ||
+    q.includes("reminder") ||
+    q.includes("calendar") ||
+    q.includes("priority")
+  ) {
+    try {
+      const { MelaProductivityEngine, DEFAULT_TASKS, DEFAULT_CALENDAR_EVENTS } = await import("@/lib/tasks/productivity");
+      const refDate = "2026-09-07";
+      const summary = MelaProductivityEngine.getSummary(DEFAULT_TASKS, refDate);
+      const todayTasks = MelaProductivityEngine.getTodayTasks(DEFAULT_TASKS, refDate);
+      const overdueTasks = MelaProductivityEngine.getOverdueTasks(DEFAULT_TASKS, refDate);
+      const weeklyPlan = MelaProductivityEngine.getWeeklyPlan(DEFAULT_TASKS, DEFAULT_CALENDAR_EVENTS, refDate);
+
+      let contextSummary = `User has ${summary.totalTasks - summary.completed} active tasks (${summary.dueToday} due today, ${summary.overdue} overdue, ${summary.urgentCount + summary.highCount} urgent/high priority).`;
+
+      if (q.includes("today") || q.includes("what do i need to do")) {
+        contextSummary += ` Today's Tasks: ${todayTasks.map((t) => `${t.title} [${t.priority}]`).join(", ") || "None scheduled."}`;
+      }
+      if (q.includes("overdue")) {
+        contextSummary += ` Overdue Tasks: ${overdueTasks.map((t) => `${t.title} (due ${t.dueDate})`).join(", ") || "None."}`;
+      }
+      if (q.includes("plan my week") || q.includes("week")) {
+        contextSummary += ` Weekly Overview: ${weeklyPlan.map((d) => `${d.dayName}: ${d.totalItems} items`).join(" | ")}`;
+      }
+
+      contexts.push({
+        domain: "tasks",
+        summary: contextSummary,
+        data: {
+          summary,
+          todayTasks: todayTasks.map((t) => ({ id: t.id, title: t.title, priority: t.priority, project: t.project, subtasks: t.subtasks })),
+          overdueTasks: overdueTasks.map((t) => ({ id: t.id, title: t.title, dueDate: t.dueDate, priority: t.priority })),
+          weeklyPlan: weeklyPlan.map((d) => ({ date: d.date, day: d.dayName, taskCount: d.tasks.length, eventCount: d.events.length })),
+        },
+      });
+    } catch (err) {
+      console.error("[ContextLayer] Tasks context error:", err);
+    }
+  }
+
   // Investment / Portfolio detection
   if (
     q.includes("invest") ||

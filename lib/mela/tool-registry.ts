@@ -878,6 +878,281 @@ export const toolRegistry: Record<string, ToolDefinition> = {
       return { success: true, snapshot: snap, message: `Historical snapshot captured at ${snap.date} with Net Worth ${snap.netWorth}.` };
     }
   },
+
+  // ─── 10. Goals Tools ───
+  get_goals: {
+    name: "get_goals",
+    domain: "goals",
+    type: "read",
+    description: "Retrieve all active user goals with deterministic intelligence metrics (monthly savings needed, weekly savings, progress %, probability score).",
+    schema: z.object({
+      category: z.string().optional(),
+    }),
+    declaration: {
+      name: "get_goals",
+      description: "Retrieve active savings and life goals with MELA intelligence analysis.",
+      parameters: {
+        type: SchemaType.OBJECT,
+        properties: {
+          category: { type: SchemaType.STRING, description: "Optional filter by category" },
+        },
+      },
+    },
+    handler: async (_session, args) => {
+      const { MelaGoalsIntelligence, DEFAULT_GOALS } = await import("@/lib/goals/intelligence");
+      let list = [...DEFAULT_GOALS];
+      if (args.category) {
+        list = list.filter((g) => g.category.toLowerCase().includes(args.category.toLowerCase()));
+      }
+      const analyzed = list.map((g) => ({
+        ...g,
+        intelligence: MelaGoalsIntelligence.analyzeGoal(g),
+      }));
+      return { count: analyzed.length, goals: analyzed };
+    },
+  },
+
+  create_goal: {
+    name: "create_goal",
+    domain: "goals",
+    type: "write",
+    description: "Create a new target savings or milestone goal with automatic pace calculation.",
+    schema: z.object({
+      title: z.string().min(1),
+      targetAmount: z.number().positive(),
+      currentAmount: z.number().optional().default(0),
+      deadline: z.string().optional(),
+      category: z.enum([
+        "Equb & Savings",
+        "Tech & Equipment",
+        "Emergency Fund",
+        "Education",
+        "Travel",
+        "Vehicle",
+        "Real Estate",
+        "Health",
+        "Personal",
+      ]).optional().default("Equb & Savings"),
+      priority: z.enum(["high", "medium", "low"]).optional().default("medium"),
+      notes: z.string().optional(),
+    }),
+    declaration: {
+      name: "create_goal",
+      description: "Create a new savings goal with target amount and deadline.",
+      parameters: {
+        type: SchemaType.OBJECT,
+        properties: {
+          title: { type: SchemaType.STRING, description: "Goal name (e.g. Laptop, Emergency Fund)" },
+          targetAmount: { type: SchemaType.NUMBER, description: "Target amount to reach" },
+          currentAmount: { type: SchemaType.NUMBER, description: "Current amount already saved" },
+          deadline: { type: SchemaType.STRING, description: "Target deadline date (YYYY-MM-DD)" },
+          category: { type: SchemaType.STRING, description: "Goal category" },
+          priority: { type: SchemaType.STRING, description: "Priority (high, medium, low)" },
+          notes: { type: SchemaType.STRING, description: "Optional notes" },
+        },
+        required: ["title", "targetAmount"],
+      },
+    },
+    handler: async (session, args) => {
+      const { MelaGoalsIntelligence } = await import("@/lib/goals/intelligence");
+      const milestones = MelaGoalsIntelligence.generateDefaultMilestones(args.targetAmount);
+      const goal = {
+        id: "goal_" + Date.now(),
+        ...args,
+        createdAt: new Date().toISOString().slice(0, 10),
+        updatedAt: new Date().toISOString().slice(0, 10),
+        status: (args.currentAmount || 0) >= args.targetAmount ? "completed" : "in_progress",
+        milestones,
+      };
+      recordDomainEvent({
+        eventType: DOMAIN_EVENTS.GOAL_CREATED || "GOAL_CREATED",
+        userId: session.uid,
+        entityId: goal.id,
+        payload: goal,
+      });
+      return { success: true, goal, message: `Goal "${args.title}" with target ${args.targetAmount} created successfully.` };
+    },
+  },
+
+  add_goal_contribution: {
+    name: "add_goal_contribution",
+    domain: "goals",
+    type: "write",
+    description: "Record a savings contribution or deposit towards an active goal.",
+    schema: z.object({
+      goalId: z.string(),
+      amount: z.number().positive(),
+      note: z.string().optional(),
+      date: z.string().optional(),
+    }),
+    declaration: {
+      name: "add_goal_contribution",
+      description: "Add a savings deposit towards a specific goal.",
+      parameters: {
+        type: SchemaType.OBJECT,
+        properties: {
+          goalId: { type: SchemaType.STRING, description: "Goal ID" },
+          amount: { type: SchemaType.NUMBER, description: "Deposit amount" },
+          note: { type: SchemaType.STRING, description: "Optional note or source" },
+          date: { type: SchemaType.STRING, description: "Deposit date (YYYY-MM-DD)" },
+        },
+        required: ["goalId", "amount"],
+      },
+    },
+    handler: async (session, args) => {
+      recordDomainEvent({
+        eventType: "GOAL_CONTRIBUTION_RECORDED",
+        userId: session.uid,
+        entityId: args.goalId,
+        payload: args,
+      });
+      return { success: true, message: `Contribution of ${args.amount} recorded for goal ${args.goalId}.` };
+    },
+  },
+
+  // ─── 11. Tasks & Calendar Productivity Tools ───
+  get_tasks: {
+    name: "get_tasks",
+    domain: "tasks",
+    type: "read",
+    description: "Retrieve user tasks with optional filtering by status (todo, in_progress, completed, overdue, today), project, and priority.",
+    schema: z.object({
+      filter: z.enum(["all", "today", "overdue", "completed"]).optional(),
+      project: z.string().optional(),
+      priority: z.enum(["urgent", "high", "medium", "low"]).optional(),
+    }),
+    declaration: {
+      name: "get_tasks",
+      description: "Get prioritized task list, overdue tasks, or tasks due today.",
+      parameters: {
+        type: SchemaType.OBJECT,
+        properties: {
+          filter: { type: SchemaType.STRING, description: "Filter: 'all', 'today', 'overdue', 'completed'" },
+          project: { type: SchemaType.STRING, description: "Filter by project name" },
+          priority: { type: SchemaType.STRING, description: "Filter by priority: 'urgent', 'high', 'medium', 'low'" },
+        },
+      },
+    },
+    handler: async (_session, args) => {
+      const { MelaProductivityEngine, DEFAULT_TASKS } = await import("@/lib/tasks/productivity");
+      const refDate = "2026-09-07";
+      let list = [...DEFAULT_TASKS];
+
+      if (args.filter === "today") list = MelaProductivityEngine.getTodayTasks(list, refDate);
+      else if (args.filter === "overdue") list = MelaProductivityEngine.getOverdueTasks(list, refDate);
+      else if (args.filter === "completed") list = list.filter((t) => t.status === "completed");
+
+      if (args.project) list = list.filter((t) => t.project?.toLowerCase() === args.project.toLowerCase());
+      if (args.priority) list = list.filter((t) => t.priority === args.priority);
+
+      const summary = MelaProductivityEngine.getSummary(DEFAULT_TASKS, refDate);
+      return { count: list.length, tasks: list, summary };
+    },
+  },
+
+  create_task: {
+    name: "create_task",
+    domain: "tasks",
+    type: "write",
+    description: "Create a new task with priority, due date, project, and subtasks.",
+    schema: z.object({
+      title: z.string().min(1),
+      description: z.string().optional(),
+      dueDate: z.string().optional(),
+      priority: z.enum(["urgent", "high", "medium", "low"]).optional().default("medium"),
+      project: z.string().optional().default("Personal"),
+      recurring: z.enum(["none", "daily", "weekly", "monthly"]).optional().default("none"),
+    }),
+    declaration: {
+      name: "create_task",
+      description: "Create a new personal or work task.",
+      parameters: {
+        type: SchemaType.OBJECT,
+        properties: {
+          title: { type: SchemaType.STRING, description: "Task title" },
+          description: { type: SchemaType.STRING, description: "Task description or notes" },
+          dueDate: { type: SchemaType.STRING, description: "Due date (YYYY-MM-DD)" },
+          priority: { type: SchemaType.STRING, description: "Priority (urgent, high, medium, low)" },
+          project: { type: SchemaType.STRING, description: "Project name (e.g. Work, Finance, Tech & Portfolio)" },
+          recurring: { type: SchemaType.STRING, description: "Recurrence (none, daily, weekly, monthly)" },
+        },
+        required: ["title"],
+      },
+    },
+    handler: async (session, args) => {
+      const task = {
+        id: "task_" + Date.now(),
+        ...args,
+        status: "todo",
+        createdAt: new Date().toISOString().slice(0, 10),
+        updatedAt: new Date().toISOString().slice(0, 10),
+      };
+      recordDomainEvent({
+        eventType: DOMAIN_EVENTS.TASK_CREATED || "TASK_CREATED",
+        userId: session.uid,
+        entityId: task.id,
+        payload: task,
+      });
+      return { success: true, task, message: `Task "${args.title}" created successfully for ${args.dueDate || "today"}.` };
+    },
+  },
+
+  complete_task: {
+    name: "complete_task",
+    domain: "tasks",
+    type: "write",
+    description: "Mark a task as completed.",
+    schema: z.object({
+      taskId: z.string(),
+    }),
+    declaration: {
+      name: "complete_task",
+      description: "Mark a task completed.",
+      parameters: {
+        type: SchemaType.OBJECT,
+        properties: {
+          taskId: { type: SchemaType.STRING, description: "Task ID to mark completed" },
+        },
+        required: ["taskId"],
+      },
+    },
+    handler: async (session, args) => {
+      recordDomainEvent({
+        eventType: "TASK_COMPLETED",
+        userId: session.uid,
+        entityId: args.taskId,
+        payload: args,
+      });
+      return { success: true, message: `Task ${args.taskId} marked as completed.` };
+    },
+  },
+
+  get_calendar_events: {
+    name: "get_calendar_events",
+    domain: "tasks",
+    type: "read",
+    description: "Retrieve unified calendar events, reminders, Ethiopian holidays, and task deadlines.",
+    schema: z.object({
+      date: z.string().optional(),
+    }),
+    declaration: {
+      name: "get_calendar_events",
+      description: "Get calendar schedule, reminders, holidays, and deadlines.",
+      parameters: {
+        type: SchemaType.OBJECT,
+        properties: {
+          date: { type: SchemaType.STRING, description: "Reference date (YYYY-MM-DD)" },
+        },
+      },
+    },
+    handler: async (_session, args) => {
+      const { MelaProductivityEngine, DEFAULT_TASKS, DEFAULT_CALENDAR_EVENTS } = await import("@/lib/tasks/productivity");
+      const refDate = args.date ? new Date(args.date) : new Date("2026-09-07");
+      const events = MelaProductivityEngine.mergeTasksIntoCalendar(DEFAULT_TASKS, DEFAULT_CALENDAR_EVENTS, refDate);
+      const weeklyPlan = MelaProductivityEngine.getWeeklyPlan(DEFAULT_TASKS, DEFAULT_CALENDAR_EVENTS, args.date || "2026-09-07");
+      return { count: events.length, events: events.slice(0, 30), weeklyPlan };
+    },
+  },
 };
 
 /**
